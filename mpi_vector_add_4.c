@@ -40,7 +40,10 @@ void Print_vector(double local_b[], int local_n, int n, char title[],
 void Parallel_vector_sum(double local_x[], double local_y[],
       double local_z[], int local_n);
 void Parallel_dot(double local_x[], double local_y[], double local_z[], int local_n);
-void Parallel_Scalar_Product(double vector[], double escalar, int local_n);
+void Parallel_Scalar_Product(
+      double local_vector[]  /* in and out  */,
+      double  scalar  /* in  */,
+      double local_n /* in */);
 
 
 /*-------------------------------------------------------------------*/
@@ -48,8 +51,11 @@ int main(void) {
    int n, local_n;
    int comm_sz, my_rank;
    double *local_x, *local_y, *local_z;
+   double scalar = 10;
+   printf("La escalar a usar es: %f\n", scalar);
    MPI_Comm comm;
    double tstart, tend;
+
 
    MPI_Init(NULL, NULL);
    comm = MPI_COMM_WORLD;
@@ -76,19 +82,17 @@ int main(void) {
    double global_product;
    MPI_Reduce(&local_product, &global_product, 1, MPI_DOUBLE, MPI_SUM, 0, comm);
 
-   double scalar = 2.0;
    Parallel_Scalar_Product(local_x, scalar, local_n);
    Parallel_Scalar_Product(local_y, scalar, local_n);
+
+   Print_vector(local_x, local_n, n, "scalar product of x is", my_rank, comm);
+   Print_vector(local_y, local_n, n, "scalar product of y is", my_rank, comm);
 
    tend = MPI_Wtime();
 
    //Print_vector(local_z, local_n, n, "The sum is", my_rank, comm);
    if(my_rank==0){
       printf("The dot product is %f\n", global_product);
-      printf("The scalar product of x times %f is:\n", scalar);
-      Print_vector(local_x, local_n, n, "x is", my_rank, comm);
-      printf("The scalar product of y times %f is:\n", scalar);
-      Print_vector(local_y, local_n, n, "y is", my_rank, comm);
       //printf("\nTook %f ms to run\n", (tend-tstart)*1000);
    }
     //printf("\nTook %f ms to run\n", (tend-tstart)*1000);
@@ -348,7 +352,7 @@ void Parallel_dot(
       //printf("local_n: %d\n", local_n);
       for(int i = 0; i < local_n; i++){
          local_product += local_x[i] * local_y[i];
-         printf("- %f * %f = %f\n", local_x[i], local_y[i], local_product);
+         //printf("- %f * %f = %f\n", local_x[i], local_y[i], local_product);
       }
       //printf("  * local_product: %f\n", local_product);
       MPI_Reduce(&local_product, result, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
@@ -368,5 +372,7 @@ void Parallel_Scalar_Product(
          local_vector[i] = local_vector[i] * scalar;
       }
       
-      MPI_Allreduce(MPI_IN_PLACE, local_vector, local_n, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+      //MPI_Allreduce(MPI_IN_PLACE, local_vector, local_n, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+      //MPI_Allgather(local_vector, local_n, MPI_DOUBLE, local_vector, local_n, MPI_DOUBLE, MPI_COMM_WORLD);
+      MPI_Reduce(local_vector, local_vector, local_n, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 }
