@@ -40,7 +40,7 @@ void Print_vector(double local_b[], int local_n, int n, char title[],
 void Parallel_vector_sum(double local_x[], double local_y[],
       double local_z[], int local_n);
 void Parallel_dot(double local_x[], double local_y[], double local_z[], int local_n);
-void Parallel_Scalar_Product(double local_vector[], double scalar, int local_n);
+void Parallel_Scalar_Product(double vector[], double escalar, int local_n);
 
 
 /*-------------------------------------------------------------------*/
@@ -368,5 +368,5 @@ void Parallel_Scalar_Product(
          local_vector[i] = local_vector[i] * scalar;
       }
       
-      MPI_Allgather(local_vector, local_n, MPI_DOUBLE, local_vector, local_n, MPI_DOUBLE, MPI_COMM_WORLD);
+      MPI_Allreduce(MPI_IN_PLACE, local_vector, local_n, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 }
