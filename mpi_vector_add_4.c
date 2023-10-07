@@ -56,9 +56,9 @@ int main(void) {
    MPI_Comm_rank(comm, &my_rank);
 
    Read_n(&n, &local_n, my_rank, comm_sz, comm);
-   n = 5;
-   printf("** n: %d\n", n);
-   printf("** local_n: %d\n", local_n);
+   //n = 3;
+   //printf("** n: %d\n", n);
+   //printf("** local_n: %d\n", local_n);
    tstart = MPI_Wtime();
    Allocate_vectors(&local_x, &local_y, &local_z, local_n, comm);
 
@@ -152,7 +152,7 @@ void Read_n(
       MPI_Comm  comm       /* in  */) {
    int local_ok = 1;
    char *fname = "Read_n";
-   printf("comm_sz: %d\n", comm_sz);
+   //printf("comm_sz: %d\n", comm_sz);
 
    if (my_rank == 0) {
       printf("What's the order of the vectors?\n");
@@ -331,16 +331,19 @@ void Parallel_vector_sum(
 void Parallel_dot(
       double local_x[]  /* in  */,
       double  local_y[]  /* in  */,
-      double  local_z[]  /* out */,
+      double* result /* out */,
       int     local_n    /* in  */) {
       
+      //printf("Shre nazg golugranu kilmi-nudu\n");
       double local_product = 0.0;
-      printf("local_n: %d\n", local_n);
+      //printf("local_n: %d\n", local_n);
       for(int i = 0; i < local_n; i++){
          local_product += local_x[i] * local_y[i];
          printf("- %f * %f = %f\n", local_x[i], local_y[i], local_product);
       }
-      MPI_Allreduce(&local_product, local_z, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+      printf("  * local_product: %f\n", local_product);
+      MPI_Reduce(&local_product, result, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+      //MPI_Allreduce(&local_product, result, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 }
 
 
