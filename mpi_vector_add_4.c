@@ -374,5 +374,5 @@ void Parallel_Scalar_Product(
       
       //MPI_Allreduce(MPI_IN_PLACE, local_vector, local_n, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
       //MPI_Allgather(local_vector, local_n, MPI_DOUBLE, local_vector, local_n, MPI_DOUBLE, MPI_COMM_WORLD);
-      MPI_Reduce(local_vector, local_vector, local_n, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+      //MPI_Reduce(local_vector, local_vector, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 }
